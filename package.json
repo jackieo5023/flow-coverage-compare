@@ -1,0 +1,12 @@
+{
+  "name": "flow-coverage-diff",
+  "version": "1.0.0",
+  "description": "Compares your PR flow coverage to master.",
+  "main": "src/index.js",
+  "author": "jackieo5023",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  }
+}
