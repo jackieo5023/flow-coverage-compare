@@ -97,6 +97,6 @@ jobs:
         with:
           package-manager: npm
           path: client/
-          pattern: ^src\/.*.js$
+          pattern: ^client/src\/.*.js$
           threshold: 10
 ```
