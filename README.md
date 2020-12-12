@@ -17,7 +17,7 @@ The possible inputs for this action are:
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
 | `github-token`    | The GitHub authentication token                                                                                                                   | `GITHUB_TOKEN` |
 | `package-manager` | The package manager your repo uses - either `yarn` or `npm`                                                                                       | `yarn`         |
-| `path`            | The path to your `.flowconfig`                                                                                                                    |                |
+| `path`            | The path to your `.flowconfig` (which should be the same as the path to your `package.json`)                                                      |                |
 | `pattern`         | The regex pattern used to determine which files to run flow on                                                                                    | `^.*.js$`      |
 | `threshold`       | The number of percentage points _down_ where this job will fail - not specifying this input will cause the job to always pass if run successfully |                |
 
@@ -62,7 +62,7 @@ jobs:
 This config specifies 4 things:
 
 - You are using `npm`
-- Your flow config is under the path `client/`
+- Your flow config and `package.json` is under the path `client/`
 - You want to check _only_ the files under the `client/src` directory, ending in `.js`
 - You want to fail the job if any file checked has a decline in flow coverage greater than or equal to 10%
 
@@ -88,9 +88,9 @@ jobs:
           ref: ${{ github.base_ref }}
       - name: Install dependencies
         run: |
-          cd head
+          cd head/client
           npm install
-          cd ../base
+          cd ../../base/client
           npm install
       - name: Run check
         uses: jackieo5023/flow-coverage-compare@v1

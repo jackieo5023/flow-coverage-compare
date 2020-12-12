@@ -33,14 +33,22 @@ async function getFilesInPR(octokit, pattern) {
     });
 }
 
-async function getCoverageData(directory, filenames, packageManager) {
+async function getCoverageData(directory, path, filenames, packageManager) {
   const outputs = await Promise.all(
-    filenames.map((filename) =>
-      exec(
-        `cd ${directory} && ${packageManager} flow coverage ${filename} --quiet`
-      )
-    )
+    filenames.map((filename) => {
+      let extendedDirectory = directory;
+      let clippedFilename = filename;
+      if (path !== "") {
+        extendedDirectory += `/${path}`;
+        const regex = new RegExp("^(" + path + ")");
+        clippedFilename = filename.replace(regex, "");
+      }
+      return exec(
+        `cd ${extendedDirectory} && ${packageManager} flow coverage ${clippedFilename} --quiet`
+      );
+    })
   );
+
   const coverageData = {};
   outputs.forEach(async ({ stdout, stderr }, index) => {
     const begin = stdout.indexOf(": ") + 2;
@@ -92,12 +100,14 @@ async function run() {
   const packageManager = core.getInput("package-manager");
   const path = core.getInput("path");
   const prCoverageData = await getCoverageData(
-    `head${path !== "" ? `/${path}` : ""}`,
+    "head",
+    path,
     modifiedFiles,
     packageManager
   );
   const baseCoverageData = await getCoverageData(
-    `base/${path !== "" ? `/${path}` : ""}`,
+    "base",
+    path,
     modifiedFiles,
     packageManager
   );
