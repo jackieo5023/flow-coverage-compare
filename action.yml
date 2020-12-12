@@ -1,0 +1,25 @@
+name: "Flow Coverage Compare"
+description: "Github action to compare flow coverage on a PR to the base branch"
+inputs:
+  github-token:
+    description: "The GitHub authentication token"
+    required: true
+    default: ${{ github.token }}
+  package-manager:
+    descriptions: "The package manager your repo uses (yarn or npm)"
+    required: true
+    default: yarn
+  path:
+    description: "The path to your .flowconfig"
+  pattern:
+    description: "The regex pattern used to determine which files to run flow on"
+    required: true
+    default: "^.*.js$"
+  threshold:
+    description: "The number of percentage points *down* where this job will fail - not specifying this input will cause the job to always pass if run successfully"
+runs:
+  using: "node12"
+  main: "dist/index.js"
+branding:
+  icon: "bar-chart-2"
+  color: "yellow"
