@@ -1,6 +1,5 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { round } = require("lodash");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -93,6 +92,9 @@ async function run() {
   const myToken = core.getInput("github-token");
   const octokit = github.getOctokit(myToken);
   const filenamesInPR = await getFilesInPR(octokit, pattern);
+  if (filenamesInPR.length === 0) {
+    return;
+  }
 
   const modifiedFiles = filenamesInPR
     .filter(({ filename, status }) => status === "modified")
