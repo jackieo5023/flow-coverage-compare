@@ -54,7 +54,7 @@ jobs:
           cd ../base
           yarn
       - name: Run check
-        uses: jackieo5023/flow-coverage-compare@v1
+        uses: jackieo5023/flow-coverage-compare@v0.1
 ```
 
 **Customizable config**
@@ -93,7 +93,7 @@ jobs:
           cd ../../base/client
           npm install
       - name: Run check
-        uses: jackieo5023/flow-coverage-compare@v1
+        uses: jackieo5023/flow-coverage-compare@v0.1
         with:
           package-manager: npm
           path: client/
