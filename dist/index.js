@@ -94,6 +94,18 @@ function getMarkdownTableAndThresholdPass(coverageDifference, threshold) {
   return { table, passesThreshold };
 }
 
+async function postComment(octokit, context, table) {
+  await octokit.request(
+    "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+    {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.payload.pull_request.number,
+      body: COMMENT_HEADER + table,
+    }
+  );
+}
+
 async function run() {
   const pattern = core.getInput("pattern");
   const myToken = core.getInput("github-token");
@@ -139,15 +151,35 @@ async function run() {
     threshold
   );
 
-  await octokit.request(
-    "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+  const comments = await octokit.request(
+    "GET /repos/{owner}/{repo}/issues/{issue_number}/comments",
     {
       owner: context.repo.owner,
       repo: context.repo.repo,
       issue_number: context.payload.pull_request.number,
-      body: COMMENT_HEADER + table,
     }
   );
+
+  if (comments.data.length !== 0) {
+    const commentToEdit = comments.data.find((comment) =>
+      comment.body.startsWith(COMMENT_HEADER)
+    );
+    if (commentToEdit != null) {
+      await octokit.request(
+        "PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}",
+        {
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          comment_id: commentToEdit.id,
+          body: COMMENT_HEADER + table,
+        }
+      );
+    } else {
+      postComment(octokit, context, table);
+    }
+  } else {
+    postComment(octokit, context, table);
+  }
 
   if (passesThreshold === false) {
     core.setFailed(`A file does not pass the flow threshold of ${threshold}`);
